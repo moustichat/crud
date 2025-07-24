@@ -19,16 +19,7 @@ class Emprunt {
         return $stmt->execute([$id_livre, $id_membre, $date_emprunt, $date_retour_prevue, $statut]);
      }
 
-    // READ - Recuperer tous les emprunts
-    public function getAll(){
-        $sql = "SELECT e.*, l.titre, CONCAT(m.prenom, ' ', m.nom) as membre_nom 
-                FROM emprunts e 
-                JOIN livres l ON e.id_livre = l.id_livre 
-                JOIN membres m ON e.id_membre = m.id_membre 
-                ORDER BY e.date_emprunt DESC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
+
 
     // READ - Recuperer un emprunt par son ID
     public function getById($id) {
@@ -60,19 +51,7 @@ class Emprunt {
         return $stmt->execute([$id]);
     }
 
-    // GET - Recuperer tous les livres pour le select
-    public function getAllLivres() {
-        $sql = "SELECT id_livre, titre FROM livres ORDER BY titre ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
 
-    // GET - Recuperer tous les membres pour le select
-    public function getAllMembres() {
-        $sql = "SELECT id_membre, CONCAT(prenom, ' ', nom) as nom_complet FROM membres ORDER BY nom ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
 }
 
 ?>

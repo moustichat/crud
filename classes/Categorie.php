@@ -19,12 +19,7 @@ class Categorie {
         return $stmt->execute([$nom_categorie, $description]);
      }
 
-    // READ - Recuperer toutes les catégories
-    public function getAll(){
-        $sql = "SELECT * FROM categories ORDER BY id_categorie asc";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
+
 
     // READ - Recuperer une catégorie par son ID
     public function getById($id) {

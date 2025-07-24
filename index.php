@@ -5,22 +5,20 @@ require_once('classes/Auteur.php');
 require_once('classes/Categorie.php');
 require_once('classes/Membre.php');
 require_once('classes/Emprunt.php');
+require_once('classes/Bibliotheque.php');
 
 
-$livreModel = new Livre($pdo);
-$livres = $livreModel->getAll();
+$biblioModel = new Bibliotheque($pdo);
 
-$auteurModel = new Auteur($pdo);
-$auteurs = $auteurModel->getAll();
+$livres = $biblioModel->getAllLivres();
 
-$categorieModel = new Categorie($pdo);
-$categories = $categorieModel->getAll();
+$auteurs = $biblioModel->getAllAuteurs();
 
-$membreModel = new Membre($pdo);
-$membres = $membreModel->getAll();
+$categories = $biblioModel->getAllCategories();
 
-$empruntModel = new Emprunt($pdo);
-$emprunts = $empruntModel->getAll();
+$membres = $biblioModel->getAllMembres();
+
+$emprunts = $biblioModel->getAllEmprunts();
 
 ?>
 

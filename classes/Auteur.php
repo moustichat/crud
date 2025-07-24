@@ -20,7 +20,7 @@ class Auteur {
      }
 
     // READ - Recuperer tous les auteurs
-    public function getAll(){
+    public function getAllAuteurs(){
         $sql = "SELECT * FROM auteurs ORDER BY nom DESC";
 
         $stmt = $this->pdo->query($sql);

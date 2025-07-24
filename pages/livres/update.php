@@ -1,62 +1,50 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Livre.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$livreModel = new Livre($pdo);
+
+$biblioModel = new Bibliotheque($pdo);
+$auteurs = $biblioModel->getAllAuteurs();
+$categories = $biblioModel->getAllCategories();
 $errors = [];
-$livre = null;
+$livre = $biblioModel->getLivre($_GET['id_livre']);
 
-// Récupération de l'ID du livre à modifier
-$id_livre = $_GET['id_livre'] ?? null;
-
-if (!$id_livre) {
-    header('Location: ../../index.php?error=missing_id');
-    exit;
-}
-
-// Récupération des données du livre
-try {
-    $livre = $livreModel->getById($id_livre);
-    if (!$livre) {
-        header('Location: ../../index.php?error=livre_not_found');
-        exit;
-    }
-} catch (Exception $e) {
-    header('Location: ../../index.php?error=database_error');
-    exit;
-}
 
 // Traitement du formulaire de modification
 if ($_POST) {
-    $titre = $_POST['titre'] ?? '';
-    $isbn = $_POST['isbn'] ?? '';
-    $date_publication = $_POST['date_publication'] ?? '';
-    $nombre_pages = $_POST['nombre_pages'] ?? '';
-    $nombre_exemplaires = $_POST['nombre_exemplaires'] ?? '';
-    $disponible = isset($_POST['disponible']) ? 1 : 0;
-    $resume = $_POST['resume'] ?? '';
+    $livreModel = new Livre($pdo,
+                            $_POST['titre'] ?? '',
+                            $_POST['isbn'] ?? '',
+                            $_POST['id_auteur'] ?? '',
+                            $_POST['id_categorie'] ?? '',
+                            $_POST['date_publication'] ?? '',
+                            $_POST['nombre_pages'] ?? '',
+                            $_POST['nombre_exemplaires'] ?? '',
+                            isset($_POST['disponible']) ? 1 : 0,
+                            $_POST['resume'] ?? '');
 
     // Validation basique
-    if (empty($titre)) {
+    if (empty($_POST['titre'])) {
         $errors[] = "Le titre est requis.";
     }
-    if (empty($isbn)) {
+    if (empty($_POST['isbn'])) {
         $errors[] = "L'ISBN est requis.";
     }
-    if (empty($date_publication)) {
+    if (empty($_POST['date_publication'])) {
         $errors[] = "La date de publication est requise.";
     }
-    if (empty($nombre_pages) || $nombre_pages <= 0) {
+    if (empty($_POST['nombre_pages']) || $_POST['nombre_pages'] <= 0) {
         $errors[] = "Le nombre de pages doit être positif.";
     }
-    if (empty($nombre_exemplaires) || $nombre_exemplaires <= 0) {
+    if (empty($_POST['nombre_exemplaires']) || $_POST['nombre_exemplaires'] <= 0) {
         $errors[] = "Le nombre d'exemplaires doit être positif.";
     }
 
     // Si pas d'erreurs, mise à jour du livre
     if (empty($errors)) {
         try {
-            $livreModel->update($id_livre, $titre, $isbn, $date_publication, $nombre_pages, $nombre_exemplaires, $disponible, $resume);
+            $livreModel->update($livre['id_livre']);
             header('Location: ../../index.php?message=updated');
             exit;
         } catch (Exception $e) {
@@ -143,6 +131,30 @@ if ($_POST) {
                 <textarea name="resume" id="resume" rows="4" 
                           placeholder="Résumé du livre..."><?php echo htmlspecialchars($livre['resume'] ?? ''); ?></textarea>
             </div>
+
+            <div>
+            <label for="id_auteur">Auteur *</label>
+            <select name="id_auteur" id="id_auteur" required>
+                <option value="">-- Sélectionner un auteur --</option>
+                <?php foreach ($auteurs as $auteur): ?>
+                    <option value="<?php echo $auteur['id_auteur']; ?>">
+                        <?php echo htmlspecialchars("{$auteur['prenom']} {$auteur['nom']}"); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="id_categorie">Catégorie *</label>
+            <select name="id_categorie" id="id_categorie" required>
+                <option value="">-- Sélectionner une catégorie --</option>
+                <?php foreach ($categories as $categorie): ?>
+                    <option value="<?php echo $categorie['id_categorie']; ?>">
+                        <?php echo htmlspecialchars($categorie['nom_categorie']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
             <div class="form-actions">
                 <input type="submit" value="Mettre à jour" class="btn-submit">

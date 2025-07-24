@@ -27,8 +27,8 @@ try {
 }
 
 // Récupérer les livres et membres pour les selects
-$livres = $empruntModel->getAllLivres();
-$membres = $empruntModel->getAllMembres();
+$livres = $empruntModel->getAllAuteursLivres();
+$membres = $empruntModel->getAllAuteursMembres();
 
 // Traitement du formulaire de modification
 if ($_POST) {

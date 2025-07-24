@@ -3,45 +3,51 @@
 class Livre {
     // Proprietes
     private $pdo;
+    private $id;
+    private $titre;
+    private $isbn;
+    private $id_auteur;
+    private $id_categorie;
+    private $date_publication;
+    private $nombre_pages;
+    private $nombre_exemplaires;
+    private $disponible;
+    private $resume;
+
 
     // Constructeur
-    public function __construct($pdo)
+    public function __construct($pdo, $titre, $isbn, $id_auteur, $id_categorie, $date_publication, $nombre_pages, $nombre_exemplaires, $disponible, $resume)
     {
         $this->pdo = $pdo;
+        $this->titre = $titre;
+        $this->isbn = $isbn;
+        $this->id_auteur = $id_auteur;
+        $this->id_categorie = $id_categorie;
+        $this->date_publication = $date_publication;
+        $this->nombre_pages = $nombre_pages;
+        $this->nombre_exemplaires = $nombre_exemplaires;
+        $this->disponible = $disponible;
+        $this->resume = $resume;
     }
 
     // Methodes CRUD
     
     // CREATE - Ajouter un livre
-     public function create($titre, $isbn, $date_publication, $nb_pages, $nb_exemplaires, $disponible, $resume) {
+    public function create() {
         $sql = "INSERT INTO `livres`(`id_livre`, `titre`, `isbn`, `id_auteur`, `id_categorie`, `date_publication`, `nombre_pages`, `nombre_exemplaires`, 
-        `disponible`, `resume`, `date_ajout`) VALUES (null, ?,?, null, null , ?,?,?,?,?,NOW())";
+        `disponible`, `resume`, `date_ajout`) VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$titre, $isbn, $date_publication, $nb_pages, $nb_exemplaires, $disponible, $resume]);
-     }
-
-    // READ - Recuperer tous les livres
-    public function getAll(){
-        $sql = "SELECT * FROM livres ORDER BY date_publication DESC";
-
-        $stmt = $this->pdo->query($sql);
-        
-        return $stmt->fetchAll();
+        return $stmt->execute([$this->titre, $this->isbn, $this->id_auteur, $this->id_categorie, $this->date_publication, $this->nombre_pages, $this->nombre_exemplaires, $this->disponible, $this->resume]);
     }
 
-    // READ - Recuperer un livre par son ID
-    public function getById($id) {
-        $sql = "SELECT * FROM livres WHERE id_livre = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
 
     // UPDATE - Modifier un livre
-    public function update($id, $titre, $isbn, $date_publication, $nb_pages, $nb_exemplaires, $disponible, $resume) {
+    public function update($id) {
         $sql = "UPDATE livres SET 
                 titre = ?, 
-                isbn = ?, 
+                isbn = ?,
+                `id_auteur` = ?,
+                `id_categorie` = ?,
                 date_publication = ?, 
                 nombre_pages = ?, 
                 nombre_exemplaires = ?, 
@@ -50,15 +56,10 @@ class Livre {
                 WHERE id_livre = ?";
         
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$titre, $isbn, $date_publication, $nb_pages, $nb_exemplaires, $disponible, $resume, $id]);
+        return $stmt->execute([$this->titre, $this->isbn, $this->id_auteur, $this->id_categorie, $this->date_publication, $this->nombre_pages, $this->nombre_exemplaires, $this->disponible, $this->resume, $id]);
     }
 
-    // DELETE - Supprimer un livre
-    public function delLivre($id) {
-        $sql = "DELETE FROM livres WHERE id_livre= ?";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$id]);
-    }
+    
 }
 
 ?>

@@ -19,12 +19,7 @@ class Membre {
         return $stmt->execute([$nom, $prenom, $email, $telephone, $adresse]);
      }
 
-    // READ - Recuperer tous les membres
-    public function getAll(){
-        $sql = "SELECT * FROM membres ORDER BY nom ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
+
 
     // READ - Recuperer un membre par son ID
     public function getById($id) {
