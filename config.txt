@@ -1,0 +1,252 @@
+CREATE DATABASE IF NOT EXISTS biblio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE biblio;
+
+-- Table des auteurs
+CREATE TABLE auteurs (
+    id_auteur INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    date_naissance DATE,
+    nationalite VARCHAR(50),
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table des catégories
+CREATE TABLE categories (
+    id_categorie INT AUTO_INCREMENT PRIMARY KEY,
+    nom_categorie VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- Table des livres
+CREATE TABLE livres (
+    id_livre INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(255) NOT NULL,
+    isbn VARCHAR(20) UNIQUE,
+    id_auteur INT,
+    id_categorie INT,
+    date_publication DATE,
+    nombre_pages INT,
+    nombre_exemplaires INT DEFAULT 1,
+    disponible BOOLEAN DEFAULT TRUE,
+    resume TEXT,
+    date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_auteur) REFERENCES auteurs(id_auteur) ON DELETE SET NULL,
+    FOREIGN KEY (id_categorie) REFERENCES categories(id_categorie) ON DELETE SET NULL
+);
+
+-- Table des membres/utilisateurs
+CREATE TABLE membres (
+    id_membre INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    telephone VARCHAR(20),
+    adresse TEXT,
+    date_inscription DATE DEFAULT (CURRENT_DATE),
+    actif BOOLEAN DEFAULT TRUE
+);
+
+-- Table des emprunts
+CREATE TABLE emprunts (
+    id_emprunt INT AUTO_INCREMENT PRIMARY KEY,
+    id_livre INT NOT NULL,
+    id_membre INT NOT NULL,
+    date_emprunt DATE NOT NULL DEFAULT (CURRENT_DATE),
+    date_retour_prevue DATE NOT NULL,
+    date_retour_effectif DATE NULL,
+    statut ENUM('en_cours', 'rendu', 'en_retard') DEFAULT 'en_cours',
+    FOREIGN KEY (id_livre) REFERENCES livres(id_livre) ON DELETE CASCADE,
+    FOREIGN KEY (id_membre) REFERENCES membres(id_membre) ON DELETE CASCADE
+);
+
+-- Insertion des données d'exemple
+
+-- Auteurs
+INSERT INTO auteurs (nom, prenom, date_naissance, nationalite) VALUES
+('Hugo', 'Victor', '1802-02-26', 'Française'),
+('Camus', 'Albert', '1913-11-07', 'Française'),
+('Tolkien', 'J.R.R.', '1892-01-03', 'Britannique'),
+('Christie', 'Agatha', '1890-09-15', 'Britannique'),
+('Orwell', 'George', '1903-06-25', 'Britannique'),
+('Proust', 'Marcel', '1871-07-10', 'Française'),
+('Rowling', 'J.K.', '1965-07-31', 'Britannique'),
+('Garcia Marquez', 'Gabriel', '1927-03-06', 'Colombienne'),
+('Hemingway', 'Ernest', '1899-07-21', 'Américaine'),
+('Austen', 'Jane', '1775-12-16', 'Britannique');
+
+-- Catégories
+INSERT INTO categories (nom_categorie, description) VALUES
+('Roman', 'Œuvres de fiction narrative'),
+('Science-Fiction', 'Littérature d\'anticipation et de science-fiction'),
+('Fantasy', 'Littérature fantastique et fantasy'),
+('Policier', 'Romans policiers et thrillers'),
+('Classique', 'Grands classiques de la littérature'),
+('Jeunesse', 'Livres destinés aux jeunes lecteurs'),
+('Biographie', 'Récits de vie et autobiographies'),
+('Histoire', 'Ouvrages historiques'),
+('Philosophie', 'Essais et traités philosophiques'),
+('Poésie', 'Recueils de poèmes');
+
+-- Livres
+INSERT INTO livres (titre, isbn, id_auteur, id_categorie, date_publication, nombre_pages, nombre_exemplaires, resume) VALUES
+('Les Misérables', '978-2070409228', 1, 5, '1862-01-01', 1664, 3, 'Roman historique de Victor Hugo sur la France du XIXe siècle'),
+('L\'Étranger', '978-2070360024', 2, 5, '1942-01-01', 186, 2, 'Roman philosophique d\'Albert Camus sur l\'absurdité de l\'existence'),
+('Le Seigneur des Anneaux', '978-2070612888', 3, 3, '1954-07-29', 1216, 4, 'Épopée fantasy de Tolkien dans la Terre du Milieu'),
+('Le Crime de l\'Orient-Express', '978-2253006329', 4, 4, '1934-01-01', 256, 2, 'Enquête d\'Hercule Poirot dans un train bloqué par la neige'),
+('1984', '978-2070368228', 5, 2, '1949-06-08', 376, 3, 'Dystopie d\'Orwell sur un monde totalitaire'),
+('Du côté de chez Swann', '978-2070752447', 6, 5, '1913-01-01', 544, 1, 'Premier tome de À la recherche du temps perdu'),
+('Harry Potter à l\'école des sorciers', '978-2070584628', 7, 6, '1997-06-26', 312, 5, 'Premier tome des aventures du jeune sorcier'),
+('Cent ans de solitude', '978-2070373093', 8, 1, '1967-01-01', 448, 2, 'Saga familiale magique en Amérique latine'),
+('Le Vieil Homme et la Mer', '978-2070360017', 9, 1, '1952-01-01', 128, 2, 'Récit d\'un vieux pêcheur cubain face à un marlin géant'),
+('Orgueil et Préjugés', '978-2070403694', 10, 5, '1813-01-28', 448, 2, 'Roman de Jane Austen sur les relations sociales en Angleterre');
+
+-- Membres
+INSERT INTO membres (nom, prenom, email, telephone, adresse) VALUES
+('Martin', 'Sophie', 'sophie.martin@email.com', '0123456789', '12 rue de la Paix, Paris'),
+('Dubois', 'Pierre', 'pierre.dubois@email.com', '0234567890', '34 avenue Victor Hugo, Lyon'),
+('Moreau', 'Marie', 'marie.moreau@email.com', '0345678901', '56 boulevard Saint-Germain, Marseille'),
+('Bernard', 'Jean', 'jean.bernard@email.com', '0456789012', '78 rue de la République, Lille'),
+('Petit', 'Claire', 'claire.petit@email.com', '0567890123', '90 place de la Bastille, Paris'),
+('Durand', 'Michel', 'michel.durand@email.com', '0678901234', '123 cours Lafayette, Lyon'),
+('Leroy', 'Anne', 'anne.leroy@email.com', '0789012345', '145 rue Paradis, Marseille'),
+('Roux', 'David', 'david.roux@email.com', '0890123456', '167 grand place, Lille'),
+('Vincent', 'Isabelle', 'isabelle.vincent@email.com', '0901234567', '189 rue de Rivoli, Paris'),
+('Fournier', 'Thomas', 'thomas.fournier@email.com', '0123456780', '201 quai des Belges, Marseille');
+
+-- Emprunts (quelques exemples)
+INSERT INTO emprunts (id_livre, id_membre, date_emprunt, date_retour_prevue, date_retour_effectif, statut) VALUES
+(1, 1, '2024-07-01', '2024-07-15', '2024-07-14', 'rendu'),
+(3, 2, '2024-07-05', '2024-07-19', NULL, 'en_cours'),
+(5, 3, '2024-07-10', '2024-07-24', NULL, 'en_cours'),
+(2, 4, '2024-06-15', '2024-06-29', '2024-07-02', 'rendu'),
+(7, 5, '2024-07-12', '2024-07-26', NULL, 'en_cours'),
+(4, 1, '2024-07-15', '2024-07-29', NULL, 'en_cours'),
+(9, 6, '2024-06-20', '2024-07-04', NULL, 'en_retard'),
+(8, 7, '2024-07-08', '2024-07-22', NULL, 'en_cours');
+
+-- Vues utiles pour les requêtes courantes
+
+-- Vue des livres avec auteurs et catégories
+CREATE VIEW vue_livres_complet AS
+SELECT 
+    l.id_livre,
+    l.titre,
+    l.isbn,
+    CONCAT(a.prenom, ' ', a.nom) AS auteur,
+    c.nom_categorie,
+    l.date_publication,
+    l.nombre_pages,
+    l.nombre_exemplaires,
+    l.disponible,
+    l.resume
+FROM livres l
+LEFT JOIN auteurs a ON l.id_auteur = a.id_auteur
+LEFT JOIN categories c ON l.id_categorie = c.id_categorie;
+
+-- Vue des emprunts en cours avec détails
+CREATE VIEW vue_emprunts_actifs AS
+SELECT 
+    e.id_emprunt,
+    l.titre,
+    CONCAT(m.prenom, ' ', m.nom) AS membre,
+    m.email,
+    e.date_emprunt,
+    e.date_retour_prevue,
+    e.statut,
+    DATEDIFF(CURRENT_DATE, e.date_retour_prevue) AS jours_retard
+FROM emprunts e
+JOIN livres l ON e.id_livre = l.id_livre
+JOIN membres m ON e.id_membre = m.id_membre
+WHERE e.statut IN ('en_cours', 'en_retard');
+
+-- Procédures stockées utiles
+
+DELIMITER //
+
+-- Procédure pour emprunter un livre
+CREATE PROCEDURE EmprunterLivre(
+    IN p_id_livre INT,
+    IN p_id_membre INT,
+    IN p_duree_jours INT
+)
+BEGIN
+    DECLARE v_disponible BOOLEAN DEFAULT FALSE;
+
+    -- Vérifier si le livre est disponible
+    SELECT disponible INTO v_disponible 
+    FROM livres 
+    WHERE id_livre = p_id_livre;
+
+    IF v_disponible THEN
+        -- Insérer l'emprunt
+        INSERT INTO emprunts (id_livre, id_membre, date_emprunt, date_retour_prevue)
+        VALUES (p_id_livre, p_id_membre, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL p_duree_jours DAY));
+
+        -- Marquer le livre comme indisponible si plus d'exemplaires
+        UPDATE livres 
+        SET disponible = FALSE 
+        WHERE id_livre = p_id_livre 
+        AND nombre_exemplaires <= (
+            SELECT COUNT(*) 
+            FROM emprunts 
+            WHERE id_livre = p_id_livre AND statut = 'en_cours'
+        );
+
+        SELECT 'Emprunt effectué avec succès' AS message;
+    ELSE
+        SELECT 'Livre non disponible' AS message;
+    END IF;
+END //
+
+-- Procédure pour retourner un livre
+CREATE PROCEDURE RetournerLivre(
+    IN p_id_emprunt INT
+)
+BEGIN
+    DECLARE v_id_livre INT;
+
+    -- Récupérer l'ID du livre
+    SELECT id_livre INTO v_id_livre 
+    FROM emprunts 
+    WHERE id_emprunt = p_id_emprunt AND statut = 'en_cours';
+
+    IF v_id_livre IS NOT NULL THEN
+        -- Mettre à jour l'emprunt
+        UPDATE emprunts 
+        SET date_retour_effectif = CURRENT_DATE, statut = 'rendu'
+        WHERE id_emprunt = p_id_emprunt;
+
+        -- Remettre le livre disponible
+        UPDATE livres 
+        SET disponible = TRUE 
+        WHERE id_livre = v_id_livre;
+
+        SELECT 'Retour effectué avec succès' AS message;
+    ELSE
+        SELECT 'Emprunt non trouvé ou déjà retourné' AS message;
+    END IF;
+END //
+
+DELIMITER ;
+
+-- Mise à jour automatique du statut des emprunts en retard
+UPDATE emprunts 
+SET statut = 'en_retard' 
+WHERE statut = 'en_cours' 
+AND date_retour_prevue < CURRENT_DATE;
+
+-- Index pour améliorer les performances
+CREATE INDEX idx_livres_titre ON livres(titre);
+CREATE INDEX idx_livres_auteur ON livres(id_auteur);
+CREATE INDEX idx_emprunts_membre ON emprunts(id_membre);
+CREATE INDEX idx_emprunts_statut ON emprunts(statut);
+CREATE INDEX idx_membres_email ON membres(email);
+
+-- Affichage de quelques statistiques
+SELECT 'Statistiques de la bibliothèque' AS info;
+SELECT COUNT(*) AS nombre_livres FROM livres;
+SELECT COUNT(*) AS nombre_auteurs FROM auteurs;
+SELECT COUNT(*) AS nombre_membres FROM membres;
+SELECT COUNT(*) AS emprunts_en_cours FROM emprunts WHERE statut = 'en_cours';
+SELECT COUNT(*) AS emprunts_en_retard FROM emprunts WHERE statut = 'en_retard';
