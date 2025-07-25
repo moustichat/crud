@@ -184,10 +184,20 @@ $emprunts = $biblioModel->getAllEmprunts();
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($emprunts as $emprunt):  ?>
+            <?php foreach ($emprunts as $emprunt): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($emprunt['titre']) ?></td>
-                    <td><?php echo htmlspecialchars($emprunt['membre_nom']) ?></td>
+                    <td>
+                        <?php 
+                        $livre = $biblioModel->getLivre($emprunt['id_livre']);
+                        echo htmlspecialchars($livre['titre'] ?? 'Livre inconnu'); 
+                        ?>
+                    </td>
+                    <td>
+                        <?php 
+                        $membre = $biblioModel->getMembre($emprunt['id_membre']);
+                        echo htmlspecialchars("{$membre['prenom']} {$membre['nom']}");
+                        ?>
+                    </td>
                     <td><?php echo htmlspecialchars($emprunt['date_emprunt']) ?></td>
                     <td><?php echo htmlspecialchars($emprunt['date_retour_prevue']) ?></td>
                     <td><?php echo htmlspecialchars($emprunt['date_retour_effectif'] ?? 'Non rendu') ?></td>

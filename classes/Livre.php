@@ -3,7 +3,6 @@
 class Livre {
     // Proprietes
     private $pdo;
-    private $id;
     private $titre;
     private $isbn;
     private $id_auteur;

@@ -1,12 +1,12 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Membre.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$membreModel = new Membre($pdo);
+
+
 $errors = [];
-$membre = null;
-
-// Récupération de l'ID du membre à modifier
+$biblioModel = new Bibliotheque($pdo);
 $id_membre = $_GET['id_membre'] ?? null;
 
 if (!$id_membre) {
@@ -16,7 +16,7 @@ if (!$id_membre) {
 
 // Récupération des données du membre
 try {
-    $membre = $membreModel->getById($id_membre);
+    $membre = $biblioModel->getMembre($id_membre);
     if (!$membre) {
         header('Location: ../../index.php?error=membre_not_found');
         exit;
@@ -28,28 +28,32 @@ try {
 
 // Traitement du formulaire de modification
 if ($_POST) {
-    $nom = $_POST['nom'] ?? '';
-    $prenom = $_POST['prenom'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $telephone = $_POST['telephone'] ?? '';
-    $adresse = $_POST['adresse'] ?? '';
-    $actif = isset($_POST['actif']) ? 1 : 0;
+    $membreModel = new Membre($pdo,
+                              $_POST['nom'] ?? '',
+                              $_POST['prenom'] ?? '',
+                              $_POST['email'] ?? '',
+                              $_POST['telephone'] ?? '',
+                              $_POST['adresse'] ?? '',
+                              isset($_POST['actif']) ? 'OUI' : 'NON',);
 
     // Validation basique
-    if (empty($nom)) {
+    if (empty($_POST['nom'])) {
         $errors[] = "Le nom est requis.";
     }
-    if (empty($prenom)) {
+    if (empty($_POST['prenom'])) {
         $errors[] = "Le prenom est requis.";
     }
-    if (empty($email)) {
+    if (empty($_POST['email'])) {
         $errors[] = "L'email est requis.";
+    }
+    if ($biblioModel->emailExists($_POST['email']) && $biblioModel->emailExists($_POST['email']) != $id_membre) {
+        $errors[] = "Cet email est déja utilisé";
     }
 
     // Si pas d'erreurs, mise à jour du membre
     if (empty($errors)) {
         try {
-            $membreModel->update($id_membre, $nom, $prenom, $email, $telephone, $adresse, $actif);
+            $membreModel->update($id_membre);
             header('Location: ../../index.php?message=updated');
             exit;
         } catch (Exception $e) {
@@ -75,12 +79,12 @@ if ($_POST) {
         <h1>Modifier le membre</h1>
         
         <div class="back-link">
-            <a href="../../index.php" class="btn-back">Retour a la liste</a>
+            <a href="../../index.php" class="btn-back">← Retour a la liste</a>
         </div>
 
         <?php if (!empty($errors)): ?>
             <div class="error-messages">
-                <h3>Erreurs detectees :</h3>
+                <h3>⚠️ Erreurs détectées :</h3>
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>

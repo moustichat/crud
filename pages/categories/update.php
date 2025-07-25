@@ -1,12 +1,13 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Categorie.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$categorieModel = new Categorie($pdo);
 $errors = [];
 $categorie = null;
 
 // Récupération de l'ID de la catégorie à modifier
+$biblioModel = new Bibliotheque($pdo);
 $id_categorie = $_GET['id_categorie'] ?? null;
 
 if (!$id_categorie) {
@@ -16,7 +17,7 @@ if (!$id_categorie) {
 
 // Récupération des données de la catégorie
 try {
-    $categorie = $categorieModel->getById($id_categorie);
+    $categorie = $biblioModel->getCategorie($id_categorie);
     if (!$categorie) {
         header('Location: ../../index.php?error=categorie_not_found');
         exit;
@@ -28,21 +29,22 @@ try {
 
 // Traitement du formulaire de modification
 if ($_POST) {
-    $nom_categorie = $_POST['nom_categorie'] ?? '';
-    $description = $_POST['description'] ?? '';
+    $categorieModel = new Categorie($pdo,
+                                    $_POST['nom_categorie'] ?? '',
+                                    $_POST['description'] ?? 'A rentrer');
 
     // Validation basique
-    if (empty($nom_categorie)) {
+    if (empty($_POST['nom_categorie'])) {
         $errors[] = "Le nom de la catégorie est requis.";
     }
-    if (empty($description)) {
+    if (empty($_POST['description'])) {
         $errors[] = "La description est requise.";
     }
 
     // Si pas d'erreurs, mise à jour de la catégorie
     if (empty($errors)) {
         try {
-            $categorieModel->update($id_categorie, $nom_categorie, $description);
+            $categorieModel->update($id_categorie);
             header('Location: ../../index.php?message=categorie_updated');
             exit;
         } catch (Exception $e) {
@@ -68,7 +70,7 @@ if ($_POST) {
         <h1>Modifier la catégorie</h1>
         
         <div class="back-link">
-            <a href="../../index.php" class="btn-back">← Retour à la liste</a>
+            <a href="../../index.php" class="btn-back">← Retour a la liste</a>
         </div>
 
         <?php if (!empty($errors)): ?>

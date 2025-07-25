@@ -1,12 +1,13 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Auteur.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$auteurModel = new Auteur($pdo);
+$biblioModel = new Bibliotheque($pdo);
 
 $id_auteur = $_GET['id_auteur'] ?? null;
 
-$auteurModel->delAuteur($id_auteur);
+$biblioModel->delAuteur($id_auteur);
 
 header('Location: ../../index.php#auteurs');
 

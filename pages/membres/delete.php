@@ -1,12 +1,11 @@
 <?php
 require_once('../../config/database.php');
 require_once('../../classes/Membre.php');
+require_once('./../../classes/Bibliotheque.php');
  
-$membreModel = new Membre($pdo);
+$biblioModel = new Bibliotheque($pdo);
  
-$id_membre = $_GET['id_membre'];
- 
-$membreModel->delMembre($id_membre);
+$biblioModel->delMembre($_GET['id_membre']);
  
 header('Location: ../../index.php#membres');
  

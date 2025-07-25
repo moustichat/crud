@@ -1,10 +1,10 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Auteur.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$auteurModel = new Auteur($pdo);
+$biblioModel = new Bibliotheque($pdo);
 $errors = [];
-$auteur = null;
 
 // Récupération de l'ID de l'auteur à modifier
 $id_auteur = $_GET['id_auteur'] ?? null;
@@ -16,7 +16,7 @@ if (!$id_auteur) {
 
 // Récupération des données de l'auteur
 try {
-    $auteur = $auteurModel->getById($id_auteur);
+    $auteur = $biblioModel->getAuteur($id_auteur);
     if (!$auteur) {
         header('Location: ../../index.php?error=auteur_not_found');
         exit;
@@ -28,29 +28,25 @@ try {
 
 // Traitement du formulaire de modification
 if ($_POST) {
-    $nom = $_POST['nom'] ?? '';
-    $prenom = $_POST['prenom'] ?? '';
-    $date_naissance = $_POST['date_naissance'] ?? '';
-    $nationalite = $_POST['nationalite'] ?? '';
+        $auteurModel = new Auteur($pdo,
+                                  $_POST['nom'] ?? '',
+                                  $_POST['prenom'] ?? '',
+                                  $_POST['date_naissance'] ?? '',
+                                  $_POST['nationalite'] ?? '');
 
     // Validation basique
-    if (empty($nom)) {
+    if (empty($_POST['nom'])) {
         $errors[] = "Le nom est requis.";
     }
-    if (empty($prenom)) {
+    if (empty($_POST['prenom'])) {
         $errors[] = "Le prénom est requis.";
     }
-    if (empty($date_naissance)) {
-        $errors[] = "La date de naissance est requise.";
-    }
-    if (empty($nationalite)) {
-        $errors[] = "La nationalité est requise.";
-    }
+
 
     // Si pas d'erreurs, mise à jour de l'auteur
     if (empty($errors)) {
         try {
-            $auteurModel->update($id_auteur, $nom, $prenom, $date_naissance, $nationalite);
+            $auteurModel->update();
             header('Location: ../../index.php?message=auteur_updated');
             exit;
         } catch (Exception $e) {

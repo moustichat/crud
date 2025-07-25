@@ -9,14 +9,14 @@ CREATE TABLE auteurs (
     date_naissance DATE,
     nationalite VARCHAR(50),
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB;
 
 -- Table des catégories
 CREATE TABLE categories (
     id_categorie INT AUTO_INCREMENT PRIMARY KEY,
     nom_categorie VARCHAR(100) NOT NULL UNIQUE,
     description TEXT
-);
+) ENGINE=InnoDB;
 
 -- Table des livres
 CREATE TABLE livres (
@@ -33,7 +33,7 @@ CREATE TABLE livres (
     date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_auteur) REFERENCES auteurs(id_auteur) ON DELETE SET NULL,
     FOREIGN KEY (id_categorie) REFERENCES categories(id_categorie) ON DELETE SET NULL
-);
+) ENGINE=InnoDB;
 
 -- Table des membres/utilisateurs
 CREATE TABLE membres (
@@ -45,7 +45,7 @@ CREATE TABLE membres (
     adresse TEXT,
     date_inscription DATE DEFAULT (CURRENT_DATE),
     actif BOOLEAN DEFAULT TRUE
-);
+) ENGINE=InnoDB;
 
 -- Table des emprunts
 CREATE TABLE emprunts (
@@ -58,7 +58,7 @@ CREATE TABLE emprunts (
     statut ENUM('en_cours', 'rendu', 'en_retard') DEFAULT 'en_cours',
     FOREIGN KEY (id_livre) REFERENCES livres(id_livre) ON DELETE CASCADE,
     FOREIGN KEY (id_membre) REFERENCES membres(id_membre) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
 -- Insertion des données d'exemple
 

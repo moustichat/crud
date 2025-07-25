@@ -3,48 +3,36 @@
 class Categorie {
     // Proprietes
     private $pdo;
+    private $nom_categorie;
+    private $description;
 
     // Constructeur
-    public function __construct($pdo)
+    public function __construct($pdo, $nom_categorie, $description)
     {
         $this->pdo = $pdo;
+        $this->nom_categorie = $nom_categorie;
+        $this->description = $description;
     }
 
     // Methodes CRUD
     
     // CREATE - Ajouter une catégorie
-     public function create($nom_categorie, $description) {
+     public function create() {
         $sql = "INSERT INTO `categories` (`id_categorie`, `nom_categorie`, `description`) VALUES (null,?,?)";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$nom_categorie, $description]);
+        return $stmt->execute([$this->nom_categorie, $this->description]);
      }
 
 
-
-    // READ - Recuperer une catégorie par son ID
-    public function getById($id) {
-        $sql = "SELECT * FROM categories WHERE id_categorie = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
-
     // UPDATE - Modifier une catégorie
-    public function update($id, $nom_categorie, $description) {
+    public function update($id) {
         $sql = "UPDATE categories SET 
                 nom_categorie = ?, 
-                description = ? 
+                `description` = ? 
                 WHERE id_categorie = ?";
         
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$nom_categorie, $description, $id]);
-    }
-
-    // delCategorie - Supprimer une catégorie
-    public function delCategorie($id) {
-        $sql = "DELETE FROM categories WHERE id_categorie = ?";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$id]);
+        return $stmt->execute([$this->nom_categorie, $this->description, $id]);
     }
 }
 

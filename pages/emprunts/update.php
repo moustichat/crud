@@ -1,8 +1,9 @@
 <?php
 require_once('./../../config/database.php');
 require_once('./../../classes/Emprunt.php');
+require_once('./../../classes/Bibliotheque.php');
 
-$empruntModel = new Emprunt($pdo);
+$biblioModel = new Bibliotheque($pdo);
 $errors = [];
 $emprunt = null;
 
@@ -16,7 +17,7 @@ if (!$id_emprunt) {
 
 // Récupération des données de l'emprunt
 try {
-    $emprunt = $empruntModel->getById($id_emprunt);
+    $emprunt = $biblioModel->getEmprunt($id_emprunt);
     if (!$emprunt) {
         header('Location: ../../index.php?error=emprunt_not_found');
         exit;
@@ -27,44 +28,47 @@ try {
 }
 
 // Récupérer les livres et membres pour les selects
-$livres = $empruntModel->getAllAuteursLivres();
-$membres = $empruntModel->getAllAuteursMembres();
+$livres = $biblioModel->getAllLivres();
+$membres = $biblioModel->getAllMembres();
 
 // Traitement du formulaire de modification
 if ($_POST) {
-    $id_livre = $_POST['id_livre'] ?? '';
-    $id_membre = $_POST['id_membre'] ?? '';
-    $date_emprunt = $_POST['date_emprunt'] ?? '';
-    $date_retour_prevue = $_POST['date_retour_prevue'] ?? '';
-    $date_retour_effectif = $_POST['date_retour_effectif'] ?? null;
-    $statut = $_POST['statut'] ?? '';
+    $empruntModel = new Emprunt($pdo,
+                                $_POST['id_livre'] ?? '',
+                                $_POST['id_membre'] ?? '',
+                                $_POST['date_emprunt'] ?? '',
+                                $_POST['date_retour_prevue'] ?? '',
+                                $_POST['statut'] ?? '');
+                                
 
-    // Si date_retour_effectif est vide, on met null
-    if (empty($date_retour_effectif)) {
-        $date_retour_effectif = null;
-    }
 
     // Validation basique
-    if (empty($id_livre)) {
+    if (empty($_POST['id_livre'])) {
         $errors[] = "Le livre est requis.";
     }
-    if (empty($id_membre)) {
+    if (empty($_POST['id_membre'])) {
         $errors[] = "Le membre est requis.";
     }
-    if (empty($date_emprunt)) {
+    if (empty($_POST['date_emprunt'])) {
         $errors[] = "La date d'emprunt est requise.";
     }
-    if (empty($date_retour_prevue)) {
+    if (empty($_POST['date_retour_prevue'])) {
         $errors[] = "La date de retour prevue est requise.";
     }
-    if (empty($statut)) {
+    if ($_POST['date_retour_effectif']) {
+        $empruntModel->rendre_livre($_POST['date_retour_effectif']);
+    }
+    if (empty($_POST['statut'])) {
         $errors[] = "Le statut est requis.";
+    }
+    if ($_POST['statut'] == 'rendu') {
+        $empruntModel->rendre_livre(date("Y-m-d H:i:s"));
     }
 
     // Si pas d'erreurs, mise à jour de l'emprunt
     if (empty($errors)) {
         try {
-            $empruntModel->update($id_emprunt, $id_livre, $id_membre, $date_emprunt, $date_retour_prevue, $date_retour_effectif, $statut);
+            $empruntModel->update($id_emprunt);
             header('Location: ../../index.php?message=updated');
             exit;
         } catch (Exception $e) {
@@ -90,12 +94,12 @@ if ($_POST) {
         <h1>Modifier l'emprunt</h1>
         
         <div class="back-link">
-            <a href="../../index.php" class="btn-back">Retour a la liste</a>
+            <a href="../../index.php" class="btn-back">← Retour a la liste</a>
         </div>
 
         <?php if (!empty($errors)): ?>
             <div class="error-messages">
-                <h3>Erreurs detectees :</h3>
+                <h3>⚠️ Erreurs détectées :</h3>
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -123,7 +127,7 @@ if ($_POST) {
                     <option value="">Choisir un membre</option>
                     <?php foreach ($membres as $membre): ?>
                         <option value="<?php echo $membre['id_membre']; ?>" <?php echo ($emprunt['id_membre'] == $membre['id_membre']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($membre['nom_complet']); ?>
+                            <?php echo htmlspecialchars("{$membre['prenom']} {$membre['nom']}"); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

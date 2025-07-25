@@ -8,8 +8,8 @@ $biblioModel = new Bibliotheque($pdo);
 $auteurs = $biblioModel->getAllAuteurs();
 $categories = $biblioModel->getAllCategories();
 $errors = [];
-$livre = $biblioModel->getLivre($_GET['id_livre']);
-
+$id_livre = $_GET['id_livre'];
+$livre = $biblioModel->getLivre($id_livre);
 
 // Traitement du formulaire de modification
 if ($_POST) {
@@ -39,6 +39,9 @@ if ($_POST) {
     }
     if (empty($_POST['nombre_exemplaires']) || $_POST['nombre_exemplaires'] <= 0) {
         $errors[] = "Le nombre d'exemplaires doit être positif.";
+    }
+    if ($biblioModel->isbnExists($_POST['isbn']) != $id_livre) {
+        $errors[] = "Cet email est déja utilisé";
     }
 
     // Si pas d'erreurs, mise à jour du livre
@@ -70,12 +73,12 @@ if ($_POST) {
         <h1>Modifier le livre</h1>
         
         <div class="back-link">
-            <a href="../../index.php" class="btn-back">← Retour à la liste</a>
+            <a href="../../index.php" class="btn-back">← Retour a la liste</a>
         </div>
 
         <?php if (!empty($errors)): ?>
             <div class="error-messages">
-                <h3>Erreurs détectées :</h3>
+                <h3>⚠️ Erreurs détectées :</h3>
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -132,10 +135,11 @@ if ($_POST) {
                           placeholder="Résumé du livre..."><?php echo htmlspecialchars($livre['resume'] ?? ''); ?></textarea>
             </div>
 
-            <div>
+        <div>
+            <?php $auteur = $biblioModel->getAuteur($livre['id_auteur']); ?>
             <label for="id_auteur">Auteur *</label>
             <select name="id_auteur" id="id_auteur" required>
-                <option value="">-- Sélectionner un auteur --</option>
+                <option value = <?php echo $livre['id_auteur'] ?>><?php echo htmlspecialchars($auteur['prenom']) ?> <?php echo htmlspecialchars($auteur['nom']) ?></option>
                 <?php foreach ($auteurs as $auteur): ?>
                     <option value="<?php echo $auteur['id_auteur']; ?>">
                         <?php echo htmlspecialchars("{$auteur['prenom']} {$auteur['nom']}"); ?>
@@ -147,7 +151,7 @@ if ($_POST) {
         <div>
             <label for="id_categorie">Catégorie *</label>
             <select name="id_categorie" id="id_categorie" required>
-                <option value="">-- Sélectionner une catégorie --</option>
+                <option value = <?php echo $livre['id_categorie'] ?>><?php echo htmlspecialchars(($biblioModel->getCategorie($livre['id_categorie']))['nom_categorie']) ?></option>
                 <?php foreach ($categories as $categorie): ?>
                     <option value="<?php echo $categorie['id_categorie']; ?>">
                         <?php echo htmlspecialchars($categorie['nom_categorie']); ?>
